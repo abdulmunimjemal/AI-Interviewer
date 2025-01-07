@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+redis
+openai
+requests
+SpeechRecognition
+python-dotenv
+aiofiles
+python-multipart
+pydantic
