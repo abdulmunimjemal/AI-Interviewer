@@ -1,0 +1,462 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+  <meta charset="UTF-8">
+  <title>AI Interview App</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f8f9fa;
+      --text-primary: #2d3436;
+      --text-secondary: #636e72;
+      --accent-color: #0984e3;
+      --accent-hover: #0769b6;
+      --border-color: #dfe6e9;
+      --warning-color: #ff7675;
+      --success-color: #00b894;
+      --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+
+    [data-theme="dark"] {
+      --bg-primary: #1a1a1a;
+      --bg-secondary: #2d2d2d;
+      --text-primary: #ffffff;
+      --text-secondary: #b2bec3;
+      --accent-color: #74b9ff;
+      --accent-hover: #0984e3;
+      --border-color: #404040;
+      --warning-color: #ff7675;
+      --success-color: #00b894;
+      --card-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+      transition: background-color 0.3s, color 0.3s;
+    }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+    }
+
+    .container {
+      max-width: 800px;
+      margin: 2rem auto;
+      padding: 2rem;
+      background-color: var(--bg-secondary);
+      border-radius: 12px;
+      box-shadow: var(--card-shadow);
+    }
+
+    h1, h2, h3 {
+      color: var(--text-primary);
+      margin-bottom: 1.5rem;
+      font-weight: 600;
+    }
+
+    h1 {
+      font-size: 2.5rem;
+      text-align: center;
+    }
+
+    .input-group {
+      margin-bottom: 1.5rem;
+    }
+
+    label {
+      display: block;
+      margin-bottom: 0.5rem;
+      color: var(--text-secondary);
+      font-weight: 500;
+    }
+
+    input[type="text"],
+    input[type="number"] {
+      width: 100%;
+      padding: 0.75rem;
+      border: 2px solid var(--border-color);
+      border-radius: 8px;
+      background-color: var(--bg-primary);
+      color: var(--text-primary);
+      font-size: 1rem;
+      transition: border-color 0.3s;
+    }
+
+    input:focus {
+      outline: none;
+      border-color: var(--accent-color);
+    }
+
+    button {
+      background-color: var(--accent-color);
+      color: white;
+      border: none;
+      padding: 0.75rem 1.5rem;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background-color 0.3s, transform 0.1s;
+      width: 100%;
+      margin-top: 1rem;
+    }
+
+    button:hover {
+      background-color: var(--accent-hover);
+    }
+
+    button:active {
+      transform: scale(0.98);
+    }
+
+    button:disabled {
+      background-color: var(--border-color);
+      cursor: not-allowed;
+    }
+
+    #timer-container {
+      text-align: center;
+      font-size: 1.25rem;
+      margin-bottom: 1.5rem;
+      padding: 1rem;
+      background-color: var(--bg-primary);
+      border-radius: 8px;
+      border: 2px solid var(--border-color);
+    }
+
+    #recording-status {
+      text-align: center;
+      margin: 1rem 0;
+    }
+
+    #recording-time {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: var(--accent-color);
+    }
+
+    .time-warning {
+      color: var(--warning-color) !important;
+    }
+
+    .warning-message {
+      color: var(--warning-color);
+      font-size: 0.9rem;
+      margin-top: 0.5rem;
+    }
+
+    #offline-bar {
+      background-color: var(--warning-color);
+      color: white;
+      text-align: center;
+      padding: 0.75rem;
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 1000;
+      font-weight: 500;
+    }
+
+    .loading-spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--bg-secondary);
+      border-top: 3px solid var(--accent-color);
+      border-radius: 50%;
+      margin: 1rem auto;
+      animation: spin 1s linear infinite;
+    }
+
+    .theme-toggle {
+      position: fixed;
+      top: 1rem;
+      right: 1rem;
+      background: none;
+      border: none;
+      color: var(--text-primary);
+      cursor: pointer;
+      width: auto;
+      padding: 0.5rem;
+    }
+
+    .theme-toggle i {
+      font-size: 1.5rem;
+    }
+
+    #result {
+      text-align: center;
+    }
+
+    .result-card {
+      background-color: var(--bg-primary);
+      padding: 2rem;
+      border-radius: 12px;
+      margin: 1rem 0;
+      border: 2px solid var(--border-color);
+      animation: slideIn 0.5s ease-out;
+    }
+
+    .passed {
+      color: var(--success-color);
+    }
+
+    .failed {
+      color: var(--warning-color);
+    }
+
+    /* Audio Wave Animation Styles */
+    .audio-wave {
+      height: 60px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2px;
+      padding: 1rem;
+      background: var(--bg-primary);
+      border-radius: 12px;
+      border: 2px solid var(--border-color);
+    }
+
+    .audio-wave .bar {
+      width: 4px;
+      height: 16px;
+      background: var(--accent-color);
+      border-radius: 2px;
+    }
+
+    .playing .bar {
+      animation: playback 0.5s ease infinite alternate;
+    }
+
+    .recording .bar {
+      animation: recording 0.5s ease infinite alternate;
+      background: var(--warning-color);
+    }
+
+    @keyframes playback {
+      0% { height: 4px; }
+      100% { height: 32px; }
+    }
+
+    @keyframes recording {
+      0% {
+        height: 4px;
+        background: var(--warning-color);
+      }
+      100% {
+        height: 32px;
+        background: #ff0000;
+      }
+    }
+
+    .bar:nth-child(1) { animation-delay: 0.0s; }
+    .bar:nth-child(2) { animation-delay: 0.1s; }
+    .bar:nth-child(3) { animation-delay: 0.2s; }
+    .bar:nth-child(4) { animation-delay: 0.3s; }
+    .bar:nth-child(5) { animation-delay: 0.4s; }
+    .bar:nth-child(6) { animation-delay: 0.2s; }
+    .bar:nth-child(7) { animation-delay: 0.1s; }
+    .bar:nth-child(8) { animation-delay: 0.0s; }
+
+    /* Celebration Animation */
+    .celebration {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 1000;
+    }
+
+    .confetti {
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      background: var(--accent-color);
+      opacity: 0;
+    }
+
+    @keyframes confetti-fall {
+      0% {
+        transform: translateY(-100%) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    @keyframes slideIn {
+      from {
+        transform: translateY(20px);
+        opacity: 0;
+      }
+      to {
+        transform: translateY(0);
+        opacity: 1;
+      }
+    }
+
+    /* Markdown styles */
+    .markdown-content {
+      text-align: left;
+      line-height: 1.6;
+    }
+
+    .markdown-content h1,
+    .markdown-content h2,
+    .markdown-content h3 {
+      margin-top: 1.5rem;
+    }
+
+    .markdown-content ul,
+    .markdown-content ol {
+      margin-left: 1.5rem;
+      margin-bottom: 1rem;
+    }
+
+    .markdown-content code {
+      background: var(--bg-secondary);
+      padding: 0.2rem 0.4rem;
+      border-radius: 4px;
+      font-size: 0.9em;
+    }
+
+    .markdown-content blockquote {
+      border-left: 4px solid var(--accent-color);
+      padding-left: 1rem;
+      margin-left: 0;
+      color: var(--text-secondary);
+    }
+
+    @media (max-width: 768px) {
+      .container {
+        margin: 1rem;
+        padding: 1rem;
+      }
+
+      h1 {
+        font-size: 2rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <button class="theme-toggle" onclick="toggleTheme()">
+    <i class="fas fa-moon"></i>
+  </button>
+
+  <div id="offline-bar" style="display: none;">
+    <i class="fas fa-wifi-slash"></i> You are currently offline. Please check your internet connection.
+  </div>
+
+  <div id="setup" class="container">
+    <h1>AI Interview Assistant</h1>
+    <div class="input-group">
+      <label for="job-role">Job Role</label>
+      <input type="text" id="job-role" placeholder="e.g., Software Engineer">
+    </div>
+
+    <div class="input-group">
+      <label for="duration">Interview Duration (minutes)</label>
+      <input type="number" id="duration" min="1" max="60" value="5">
+    </div>
+
+    <button id="start-btn">
+      <i class="fas fa-play"></i> Start Interview
+    </button>
+  </div>
+
+  <div id="interview" class="container" style="display: none;">
+    <h2>Interview in Progress</h2>
+    
+    <div id="timer-container">
+      <i class="fas fa-clock"></i>
+      Time Remaining: <span id="timer-display">00:00</span>
+    </div>
+
+    <div class="audio-container">
+      <audio id="question-audio" style="display: none;"></audio>
+      <div class="audio-wave" id="audio-wave">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+    </div>
+    
+    <div id="recording-status">
+      <div class="audio-wave" id="recording-wave" style="display: none;">
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+        <div class="bar"></div>
+      </div>
+      <span id="recording-time">00:00</span>
+      <div id="recording-warning" class="warning-message" style="display: none;"></div>
+    </div>
+
+    <button id="record-btn">
+      <i class="fas fa-microphone"></i> Record Answer
+    </button>
+    <p id="status"></p>
+  </div>
+
+  <div class="celebration" id="celebration"></div>
+
+  <div id="result" class="container" style="display: none;">
+    <h2>Interview Result</h2>
+    <div class="result-card">
+      <p id="outcome" class="passed"></p>
+      <h3>Feedback</h3>
+      <div id="feedback" class="markdown-content"></div>
+    </div>
+    <button id="restart-btn">
+      <i class="fas fa-redo"></i> Start New Interview
+    </button>
+  </div>
+
+  <script>
+    function toggleTheme() {
+      const html = document.documentElement;
+      const themeToggle = document.querySelector('.theme-toggle i');
+      
+      if (html.getAttribute('data-theme') === 'light') {
+        html.setAttribute('data-theme', 'dark');
+        themeToggle.className = 'fas fa-sun';
+      } else {
+        html.setAttribute('data-theme', 'light');
+        themeToggle.className = 'fas fa-moon';
+      }
+    }
+
+    // Check system preference
+    if (window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      document.documentElement.setAttribute('data-theme', 'dark');
+      document.querySelector('.theme-toggle i').className = 'fas fa-sun';
+    }
+  </script>
+  <script src="script.js"></script>
+</body>
+</html>
